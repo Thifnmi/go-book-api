@@ -10,5 +10,6 @@ func SetupRouter(router *gin.Engine, bookHandler handlers.BookHandler) {
 	{
 		api.GET("", bookHandler.GetAll)
 		api.GET("/:uuid", bookHandler.GetByID)
+		api.POST("", bookHandler.CreateBook)
 	}
 }

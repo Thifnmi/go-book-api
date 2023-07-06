@@ -13,6 +13,7 @@ import (
 type BookHandler interface {
 	GetAll(c *gin.Context)
 	GetByID(c *gin.Context)
+	CreateBook(c *gin.Context)
 }
 
 type bookHandler struct {
@@ -57,4 +58,8 @@ func (lh *bookHandler) GetByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, book)
+}
+
+func (lh *bookHandler) CreateBook(c *gin.Context) {
+	c.JSON(http.StatusOK, "book")
 }

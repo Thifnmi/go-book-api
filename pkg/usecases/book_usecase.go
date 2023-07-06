@@ -11,6 +11,7 @@ import (
 type BookUsecase interface {
 	GetAll(ctx context.Context, query *domain.BookQuery) (domain.ListBookResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (domain.BookResponse, error)
+	CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error)
 }
 
 type bookUsecase struct {
@@ -73,4 +74,9 @@ func (lu *bookUsecase) GetByID(ctx context.Context, id uuid.UUID) (domain.BookRe
 	}
 	response.Data = baseBook
 	return response, err
+}
+
+func (lr *bookUsecase) CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error) {
+	var book domain.Book
+	return book, nil
 }

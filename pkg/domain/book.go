@@ -44,3 +44,9 @@ type BookQuery struct {
 	Page  int `json:"page"`
 	Limit int `json:"limit"`
 }
+
+type BookPayload struct {
+	Name        string     `json:"name"`
+	Category_id string     `json:"category_id"`
+	Price       string     `json:"price"`
+}

@@ -13,6 +13,7 @@ import (
 type BookRepository interface {
 	GetAll(ctx context.Context, query *domain.BookQuery) ([]domain.BaseBookResponse, *domain.MetadataResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (domain.Book, error)
+	CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error)
 }
 
 type bookRepository struct {
@@ -50,5 +51,10 @@ func (lr *bookRepository) GetAll(ctx context.Context, query *domain.BookQuery) (
 func (lr *bookRepository) GetByID(ctx context.Context, id uuid.UUID) (domain.Book, error) {
 	var book domain.Book
 	lr.db.Where("uuid = ?", id).First(&book)
+	return book, nil
+}
+
+func (lr *bookRepository) CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error) {
+	var book domain.Book
 	return book, nil
 }
