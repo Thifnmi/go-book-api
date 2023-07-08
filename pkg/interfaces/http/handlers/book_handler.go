@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
-
+	// "io/ioutil"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 	"github.com/thifnmi/go-book-api/pkg/domain"
@@ -46,7 +47,7 @@ func (lh *bookHandler) GetByID(c *gin.Context) {
 	id, err := uuid.FromString(c.Param("uuid"))
 	if err != nil {
 		fmt.Printf("err %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -61,5 +62,18 @@ func (lh *bookHandler) GetByID(c *gin.Context) {
 }
 
 func (lh *bookHandler) CreateBook(c *gin.Context) {
-	c.JSON(http.StatusOK, "book")
+	bookRequestBody := &domain.BookPayload{}
+	if err := c.BindJSON(&bookRequestBody); err != nil {
+		log.Print("Can't bind body request")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return 
+	}
+	response, err := lh.bookUsecase.CreateBook(c, bookRequestBody)
+	if err != nil {
+		fmt.Printf("err %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	log.Print(bookRequestBody)
+	c.JSON(http.StatusOK,response)
 }

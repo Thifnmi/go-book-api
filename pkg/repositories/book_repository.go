@@ -2,7 +2,12 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
+
+	guuid "github.com/google/uuid"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	"github.com/thifnmi/go-book-api/pkg/domain"
@@ -13,7 +18,7 @@ import (
 type BookRepository interface {
 	GetAll(ctx context.Context, query *domain.BookQuery) ([]domain.BaseBookResponse, *domain.MetadataResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (domain.Book, error)
-	CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error)
+	CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Response, error)
 }
 
 type bookRepository struct {
@@ -36,13 +41,11 @@ func (lr *bookRepository) GetAll(ctx context.Context, query *domain.BookQuery) (
 
 	metaData, err := base_query.GetPaginatedResults(ctx, lr.db, &book, q, query.Page, query.Limit)
 	if err != nil {
-		fmt.Sprintf("error %v when query metadata %v", err, query)
+		log.Printf("error %v when query metadata %v", err, query)
 	}
-	// span, ctx = apm.StartSpan(ctx, "GetAll Repository", "DB MySQL query results")
-	// defer span.End()
-	result := q.Limit(query.Limit).Offset(10).Find(&basebook)
+	result := q.Limit(query.Limit).Find(&basebook)
 	if result.Error != nil {
-		fmt.Sprintf("query all with filter %v have err %v", query, result.Error)
+		log.Printf("query all with filter %v have err %v", query, result.Error)
 		return nil, nil, result.Error
 	}
 	return basebook, &metaData, nil
@@ -54,7 +57,30 @@ func (lr *bookRepository) GetByID(ctx context.Context, id uuid.UUID) (domain.Boo
 	return book, nil
 }
 
-func (lr *bookRepository) CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error) {
-	var book domain.Book
-	return book, nil
+func (lr *bookRepository) CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Response, error) {
+	var response domain.Response
+	ui := guuid.New()
+	layout := "2006-01-02 15:04:05"
+	t := time.Now().Format("2006-01-02 15:04:05")
+	parsedTime, err := time.Parse(layout, t)
+	if err != nil {
+		response.Message = ""
+		return response, errors.New(fmt.Sprintf("parse time to save log from consumer has err %v", err))
+	}
+	book := &domain.Book{
+		Uuid:        ui,
+		Name:        payload.Name,
+		Category_id: payload.Category_id,
+		Price:       payload.Price,
+		CreatedAt:   &parsedTime,
+	}
+
+	result := lr.db.Create(book)
+
+	if result.Error != nil {
+		log.Panicf("failed to insert logs %v", result.Error)
+		response.Message = ""
+		return response, result.Error
+	}
+	return response, nil
 }

@@ -10,8 +10,8 @@ type Book struct {
 	ID          int        `gorm:"primaryKey"`
 	Uuid        uuid.UUID  `json:"uuid" gorm:"not null"`
 	Name        string     `json:"name"`
-	Category_id string     `json:"category_id"`
-	Price       string     `json:"price"`
+	Category_id uuid.UUID  `json:"category_id"`
+	Price       int        `json:"price"`
 	CreatedAt   *time.Time `json:"created_at"`
 	UpdatedAt   *time.Time `json:"updated_at"`
 	DeletedAt   *time.Time `json:"deleted_at"`
@@ -20,8 +20,8 @@ type Book struct {
 type BaseBookResponse struct {
 	Uuid        uuid.UUID  `json:"uuid"`
 	Name        string     `json:"name"`
-	Category_id string     `json:"category_id"`
-	Price       string     `json:"price"`
+	Category_id uuid.UUID  `json:"category_id"`
+	Price       int        `json:"price"`
 	CreatedAt   *time.Time `json:"created_at"`
 }
 
@@ -41,12 +41,12 @@ type ListBookResponse struct {
 }
 
 type BookQuery struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
+	Page  int `form:"page"`
+	Limit int `form:"limit"`
 }
 
 type BookPayload struct {
-	Name        string     `json:"name"`
-	Category_id string     `json:"category_id"`
-	Price       string     `json:"price"`
+	Name        string    `form:"name"`
+	Category_id uuid.UUID `form:"category_id"`
+	Price       int       `form:"price"`
 }
