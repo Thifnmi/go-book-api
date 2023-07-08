@@ -2,7 +2,9 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
 	"github.com/satori/go.uuid"
 	"github.com/thifnmi/go-book-api/pkg/domain"
 	"github.com/thifnmi/go-book-api/pkg/repositories"
@@ -11,7 +13,7 @@ import (
 type BookUsecase interface {
 	GetAll(ctx context.Context, query *domain.BookQuery) (domain.ListBookResponse, error)
 	GetByID(ctx context.Context, id uuid.UUID) (domain.BookResponse, error)
-	CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error)
+	CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Response, error)
 }
 
 type bookUsecase struct {
@@ -76,7 +78,10 @@ func (lu *bookUsecase) GetByID(ctx context.Context, id uuid.UUID) (domain.BookRe
 	return response, err
 }
 
-func (lr *bookUsecase) CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Book, error) {
-	var book domain.Book
-	return book, nil
+func (lr *bookUsecase) CreateBook(ctx context.Context, payload *domain.BookPayload) (domain.Response, error) {
+	response, err := lr.bookRepo.CreateBook(ctx, payload)
+	if err != nil {
+		return response, errors.New(fmt.Sprintf("Failed to create book with err %v", err))
+	}
+	return response, nil
 }
